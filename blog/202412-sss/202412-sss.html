@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <script src="../../js/katex-loader.js"></script>
+</head>
+<title>Subsurface scattering</title>
+<body>
+<h1>Volume Rendering 方程式の拡散近似と Subsurface Scattering</h1>
+
+<p>
+  このページは <a href="https://qiita.com/advent-calendar/2024/raytracing">レイトレ Advent Calendar 2024</a> の記事として制作しました
+</p>
+<ol>
+  <li><a href="#intro">はじめに</a></li>
+  <li><a href="#VRE">Volume Rendering 方程式とモーメント定式化</a></li>
+  <li><a href="#diffusion_approx">拡散近似</a></li>
+  <li><a href="#SSS">Subsurface scattering</a></li>
+</ol>
+<h2 id="intro">1. はじめに</h2>
+<p>
+  水や肌など、絶縁体の媒質を伝播する光の近似的な振る舞いは Volume Rendering 方程式によって記述されます
+  [<a href="#Arvo1993">Arvo 1993</a>][<a href="$Cercignani1988">Cercignani 1988</a>]。<br>
+  媒質の中を光が多数回散乱するとき、その散乱方向はほぼ等方的になります。
+  このとき、Volume Rendering 方程式に対する近似として拡散近似が用いられます
+  [<a href="#Jensen2001">Jensen et al. 2001</a>]
+  。
+  拡散近似のもとでは、Volume Rendering 方程式は単純な拡散方程式に帰着し、その解は畳み込み積分で表されます。
+  ゲームなどリアルタイムレンダリングで用いられる subsurface scattering では、
+  diffusion profile を用いたガウシアンの畳み込み積分がしばしば実装されます
+  [<a href="#dEon2007">d’Eon and Luebke. 2007</a>]
+  [<a href="#Jimenez2015">Jimenez et al. 2015</a>]。
+</p>
+<p>
+  この記事では Volume Rendering 方程式から出発し、
+  subsurface scattering に用いられるガウシアンの畳み込み積分に至る道筋を眺めます。
+</p>
+
+<h2 id="VRE">1. Volume Rendering 方程式とモーメント定式化</h2>
+<h3>Volume Rendering 方程式</h3>
+<p>
+  光を単純な点粒子として扱う近似のもとでは、3次元空間上の位置 $\bm{r}$ と方向 $\bm{\omega}$ に対応する放射輝度
+  $L(\bm{x},\bm{\omega})$ は、次式で記述されます
+  [<a href="#Arvo1993">Arvo 1993</a>][<a href="$Cercignani1988">Cercignani 1988</a>]。
+</p>
+<p>$$
+  \bm{\omega}\cdot\nabla L(\bm{r},\bm{\omega})
+  = \mu_s\int_{\mathcal{S}^2}p(\bm{\omega}\cdot\bm{\omega}')L(\bm{r},\bm{\omega}')d\bm{\omega}'
+    -\mu_tL(\bm{r},\bm{\omega})
+    + S(\bm{r},\bm{\omega})
+$$</p>
+<ll>
+  <li>$\mu_a$ : 吸収係数</li>
+  <li>$\mu_s$ : 散乱係数</li>
+  <li>$\mu_t = \mu_a + \mu_s$ : 全消散係数</li>
+  <li>$p(\bm{\omega}\cdot\bm{\omega}')$ : 散乱の位相関数</li>
+  <li>$S(\bm{r},\bm{\omega})$ : 光源項</li>
+  <li>$\mathcal{S}^2$ : 2次元球面</li>
+</ll>
+<p>
+  この式は Volume Rendering 方程式、あるいは Radiative Transfer 方程式と呼ばれています。
+</p>
+<p>
+  ここでは、$\mu_a$ と $\mu_s$ は一定、かつ位相関数 $p$ は軸対称、
+  つまり $\bm{\omega}$ と $\bm{\omega}'$ のなす角度のみに依存すると仮定します。
+  位相関数 $p$ は 1 に規格化されているとし
+</p>
+<p>$$
+  \int_{\mathcal{S}^2}p(\bm{\omega}\cdot\bm{\omega}')d\bm{\omega}'=1
+$$</p>
+異方性因子 $g$ を
+<p>$$
+  g=\int_{\mathcal{S}^2}(\bm{\omega}\cdot\bm{\omega}')\,p(\bm{\omega}\cdot\bm{\omega}')d\bm{\omega}
+$$</p>
+<p>
+  によって定義します。
+  このような位相関数の例として、Mie散乱の近似として有名な Henyey-Greenstein 関数があります。
+</p>
+
+<h3>球面調和関数展開とモーメント</h3>
+<p>
+  輝度 $L(\bm{r},\bm{\omega})$ を球面調和関数で展開すると、以下のように書けます
+</p>
+<p>$$
+  L(\bm{r},\bm{\omega})
+  = \frac{1}{4\pi}\mathcal{M}_0[L(\bm{r},\bm{\omega})]
+   +\frac{3}{4\pi}\bm{\omega}\cdot\mathcal{M}_1[L(\bm{r},\bm{\omega})]
+   +\cdots
+$$</p>
+<p>
+  ここで、$\mathcal{M}_l$ は「$l$ 次のモーメント」と呼ばれる量を表します
+  [<a href="#pbrt2016">Pharr et al. 2016</a>]
+</p>
+<p>$$
+  \mathcal{M}_l\left[f(\bm{\omega})\right]
+  := \int_{\mathcal{S}^2}\underbrace{\bm{\omega}\otimes\bm{\omega}\otimes\cdots\otimes\bm{\omega}}_{l\,\text{factors}}\,f(\bm{\omega})d\bm{\omega}
+$$</p>
+<p>
+  輝度の0次、1次、2次のモーメントは、それぞれ照度の次元 $\text{W}\;\text{m}^2$ をもち、
+  以下のように定義されます
+  [<a href="#Jensen2001">Jensen et al. 2001</a>]
+</p>
+<ll>
+  <li>0次モーメント(fluence rate)
+    $$
+      E(\bm{r}):=\mathcal{M}_0\left[L(\bm{r},\bm{\omega})\right]
+      = \int_{\mathcal{S}^2}L(\bm{r},\bm{\omega})d\bm{\omega}
+    $$</p>
+  </li>
+  <li>1次モーメント(vector irradiance)
+    <p>$$
+      \bm{E}_1(\bm{r}):=\mathcal{M}_1\left[L(\bm{r},\bm{\omega})\right]
+      = \int_{\mathcal{S}^2}\bm{\omega}L(\bm{r},\bm{\omega})d\bm{\omega}
+    $$</p>
+  </li>
+  <li>2次モーメント
+    <p>$$
+      \bm{E}_2(\bm{r}):=\mathcal{M}_2\left[L(\bm{r},\bm{\omega}\right]
+      = \int_{\mathcal{S}^2}\bm{\omega}\otimes\bm{\omega}L(\bm{r},\bm{\omega})d\bm{\omega}
+    $$</p>    
+  </li>
+</ll>
+  なお radiative transfer の文脈では、0次モーメントは light intensity、
+  1次モーメントは light flux とも呼ばれます。
+</p>
+<p>
+  同様に、光源項 $S$ のモーメントを
+</p>
+<p>$$
+  Q(\bm{r})
+  :=\mathcal{M}_0[S(\bm{r},\bm{\omega})]
+  =\int_{\mathcal{S}^2}S(\bm{r},\bm{\omega})d\bm{\omega}
+  ,\quad
+  Q_1(\bm{r})
+  :=\mathcal{M}_1[S(\bm{r},\bm{\omega})]
+  =\int_{\mathcal{S}^2}\bm{\omega}S(\bm{r},\bm{\omega})d\bm{\omega}
+$$</p>
+<p>
+  などと定義します。
+</p>
+
+<h3>モーメント定式化</h3>
+<h4>0次モーメント方程式</h4>
+<p>
+  Volume Rendering 方程式の0次モーメントから、以下の式が得られます
+</p>
+<p>$$
+  \int_{\mathcal{S}^2}
+  \bm{\omega}\cdot\nabla L(\bm{r},\bm{\omega})d\bm{\omega}
+  =  \int_{\mathcal{S}^2}\left[
+    -\mu_tL(\bm{r},\bm{\omega})
+    +\mu_s\int_{\mathcal{S}^2}p(\bm{\omega}\cdot\bm{\omega}')L(\bm{r},\bm{\omega}')d\bm{\omega}'
+    +S(\bm{r},\bm{\omega})
+    \right]d\bm{\omega}
+$$</p>
+<p>
+  左辺は $\int_{\mathcal{S}^2}\bm{\omega}\cdot\nabla Ld\bm{\omega}=\nabla\cdot\bm{E}_1$
+  となり、右辺第2項は
+  $\mu_s\int_{\mathcal{S}^2}p(\bm{\omega}\cdot\bm{\omega}')L(\bm{r},\bm{\omega}')d\bm{\omega}' = \mu_sE$、
+  光源項の球面積分は $Q$ であるため、
+</p>
+<p>$$
+  \nabla\cdot\bm{E}_1(\bm{r})
+  = -\mu_tE(\bm{r}) + \mu_sE(\bm{r}) + Q_0(\bm{r})
+  = -\mu_a(\bm{r})E(\bm{r}) + Q(\bm{r})
+$$</p>
+<p>
+  これが0次モーメント方程式です。
+</p>
+
+<h4>1次モーメント式</h4>
+<p>
+  Volume Rendering 方程式の1次モーメントから、以下の式が得られます
+</p>
+<p>$$
+  \int_{\mathcal{S}^2}
+  \bm{\omega}\left[\bm{\omega}\cdot\nabla L(\bm{r},\bm{\omega})\right]d\bm{\omega}
+  =  \int_{\mathcal{S}^2}\bm{\omega}\left[
+    -\mu_tL(\bm{r},\bm{\omega})
+    +\mu_s\int_{\mathcal{S}^2}p(\bm{\omega}\cdot\bm{\omega}')L(\bm{r},\bm{\omega}')d\bm{\omega}'
+    +S(\bm{r},\bm{\omega})
+    \right]d\bm{\omega}
+$$</p>
+<p>
+  左辺は
+  $\int_{\mathcal{S}^2}\bm{\omega}\left[\bm{\omega}\cdot\nabla L\right]d\bm{\omega}=\nabla\cdot\bm{E}_2$。
+  右辺第1項は
+  $\int_{\mathcal{S}^2}\bm{\omega}\left(\mu_tL\right)=\mu_t\bm{E}_1$、
+  第2項は
+  $\mu_s\int_{\mathcal{S}^2}L(\bm{r},\bm{\omega}')\left[\int_{\mathcal{S}^2}\bm{\omega}p(\bm{\omega}\cdot\bm{\omega}')d\bm{\omega}\right]d\bm{\omega}'
+   = \mu_s g \bm{E}_1$、
+  第3項は $\bm{Q}_1$ です。よって
+</p>
+<p>$$
+  \nabla\cdot\bm{E}_2(\bm{r})
+  = -\mu_t\bm{E}_1+\mu_sg\bm{E}_1(\bm{r})+\bm{Q}_1(\bm{r}).
+$$</p>
+<P>
+  $\mu'_s=\mu_s(1-g)$ とすれば、
+</P>
+<p>$$
+  \nabla\cdot\bm{E}_2(\bm{r})
+  = -\left(\mu_a+\mu'_s\right)\bm{E}_1(\bm{r}) + \bm{Q}_1(\bm{r})
+$$</p>
+<p>
+  これが1次モーメント方程式です。
+  以上の計算の詳細は、例えば
+  [<a href="#Jakob2010">Jakob et al. 2010</a>] の Expanded Technical Report
+  に記載されています。
+</p>
+
+<h3>ここまでのまとめ</h3>
+<p>
+  Volume Rendering方程式から得られる 0次と1次モーメント方程式は
+</p>
+<p>$$
+  \left\{ \,
+    \begin{aligned}
+    & \nabla\cdot\bm{E}_1(\bm{r})= -\mu_a(\bm{r})E(\bm{r}) + Q(\bm{r}) \\
+    & \nabla\cdot\bm{E}_2(\bm{r})= -\left(\mu_a+\mu'_s\right)\bm{E}_1(\bm{r}) + \bm{Q}_1(\bm{r})
+    \end{aligned}
+\right.
+$$</p>
+<p>
+  です。
+  ただし、0次には $\bm{E}_1$、1次には $\bm{E}_2$ と高次モーメントが入って来るため、
+  この方程式の階層は閉じません。ここで拡散近似を導入し、高次のモーメントを打ち切ることを行います。
+</p>
+
+<h2 id="diffusion_approx">3. 拡散近似</h2>
+<h3>拡散近似</h3>
+<p>
+  輝度の球面調和関数展開を1次で打ち切る近似を、拡散近似
+  [<a href="#Jensen2001">Jensen et al. 2001</a>]
+  あるいは$P1$近似と呼びます
+</p>
+<p>$$
+  L(\bm{r},\bm{\omega})
+  = \frac{1}{4\pi}\mathcal{M}_0[L(\bm{r},\bm{\omega})]
+   +\frac{3}{4\pi}\bm{\omega}\cdot\mathcal{M}_1[L(\bm{r},\bm{\omega})]
+$$</p>
+<p>
+  $\bm{E}_2$ の定義式に代入すると
+</p>
+<p>$$
+  \bm{E}_2(\bm{r})
+  = \int_{\mathcal{S}^2}\left(\bm{\omega}\otimes\bm{\omega}\right)
+    \left[\frac{1}{4\pi}E(\bm{r}) + \frac{3}{4\pi}\left(\bm{E}_1(\bm{r})\cdot\bm{\omega}\right)\right]d\bm{\omega}
+$$</p>
+<p>
+  $\left(\bm{\omega}\otimes\bm{\omega}\right)$
+  の球面積分は$\frac{4\pi}{3}I$ ($I$は単位テンソル)、
+  第2項の積分は対称性からゼロになるため、
+</p>
+<p>$$
+  \bm{E}_2(\bm{r})=\frac{E(\bm{r})}{3}I.
+$$</p>
+<p>
+  これを1次モーメント方程式
+  $\nabla\cdot\bm{E}_2= -\left(\mu_a+\mu'_s\right)\bm{E}_1 + \bm{Q}_1$
+  に代入すると、
+</p>
+<p>$$
+  \frac{1}{3}\nabla E(\bm{r})
+  = -\left(\mu_a+\mu'_s\right)\bm{E}_1(\bm{r}) + \bm{Q}_1(\bm{r})
+$$</p>
+<p>
+  等方的な光源($\bm{Q}_1=0$)を仮定すれば、
+</p>
+<p>$$
+  \bm{E}_1(\bm{r})=-DE(\bm{r}),
+  \quad
+  D:=\frac{1}{3(\sigma_a+\sigma'_s)}
+$$</p>
+<p>
+  これは $D$ を拡散係数とする、Fickの法則の形になります。
+</p>
+
+<h3>拡散方程式</h3>
+<p>
+  0次モーメント方程式
+</p>
+<p>$$
+  \nabla\cdot\bm{E}_1(\bm{r}) = -\mu_a E(\bm{r}) + Q(\bm{r})
+$$</p>
+<p>
+  に対して、拡散近似で得られた $\bm{E}_1=-DE$ を代入すると
+</p>
+<p>$$
+  \nabla\cdot\left[-D\nabla E(\bm{r})\right]
+  = -\mu_aE(\bm{r}) + Q(\bm{r}),
+$$</p>
+<p>
+  すなわち
+</p>
+<p>$$
+  D\nabla^2E(\bm{r})
+  = \mu_aE(\bm{r}) - Q(\bm{r})
+$$</p>
+<p>
+  これが拡散方程式です
+  [<a href="#Ishimaru1978">Ishimaru 1978</a>]
+  [<a href="#Jensen2001">Jensen et al. 2001</a>]
+  [<a href="#Jakob2010">Jakob et al. 2010</a>]。
+</p>
+
+<h3>拡散方程式の解</h3>
+<p>
+  拡散方程式は、別名 Screened Poisson 方程式としても知られ、以下のように書くことが多いです
+</p>
+<p>$$
+  (\nabla^2-\mu^2_\text{eff})E(\bm{r})=-\frac{Q(\bm{r})}{D}
+$$</p>
+<p>
+  ただし $\mu^2_\text{eff}:=\frac{\mu_a}{D}=3\mu_a(\mu_a+\mu'_s)$ です。
+</p>
+<p>
+  この方程式は Green 関数 $\mathcal{G}$ を用いて解が与えられることが知られています。
+  例えば $Q$ を点光源とすれば
+</p>
+<p>$$
+  E(\bm{r})
+  = \frac{1}{D}\int Q(\bm{r}')\mathcal{G}(\bm{r}-\bm{r}')d\bm{r}'.
+$$</p>
+<p>
+  Screened Poisson 方程式の Green 関数は Yukawa カーネルと呼ばれ、以下のように与えられます
+</p>
+<p>$$
+  \mathcal{G}(\bm{r}-\bm{r}')
+  =\frac{1}{4\pi}\frac{e^{-\mu_\text{eff}|\bm{r}-\bm{r}'|}}{|\bm{r}-\bm{r}'|}
+$$</p>
+
+
+<h2 id="SSS">4. Subsurface scattering</h2>
+<p>
+  3次元空間上の2次元表面を $\mathcal{A}$ とし、そこでの座標を $\bm{s}$ と書きます。
+  Subsurface scattering の手法の一つとして、表面上の照度の初期分布 $E_\text{in}$ と
+  diffusion profile $R_d$ の畳み込み積分によって、表面上の出射照度 $E_\text{out}$ を求めるものがあります。
+  典型的
+  [<a href="#Jimenez2015">Jimenez et al. 2015</a>]
+  には
+</p>
+<p>$$
+  E_\text{out}(\bm{s})
+  = \int_{\mathcal{A}}E_\text{in}(\bm{s}')R_d(\bm{s}-\bm{s}')d\bm{s}'.
+$$</p>
+<p>
+  ここで用いられる $R_d$ は、3次元のグリーン関数 $\mathcal{G}$ を、深さ方向に対して積分し2次元化したものとみなせます
+  [<a href="#dEon2007"> d’Eon and Luebke. 2007</a>]。
+</p>
+
+<h3>2D Diffusion Profiles</h3>
+<p>  
+  拡散近似による照度
+</p>
+<p>$$
+  E(\bm{r})=\int Q(\bm{r}')\mathcal{G}(\bm{r}-\bm{r}')d\bm{r}'
+$$</p>
+<p>
+  を考え、$\bm{r}=(x,y,z)$ のうち表面 $z=0$ の値に着目します。
+  光源項 $Q(\bm{r}')$ を表面成分 $(x',y')$ と深さ方向成分 $z'$ に分離して
+</p>
+<p>$$
+  Q(\bm{r}')
+  = E_\text{in}(x',y')\tau(z')
+$$</p>
+<p>
+  と書き、$\mathcal{G}$ を深さ方向に対して積分すると、表面上で有効な応答関数
+</p>
+<p>$$
+  R_d(x',y')
+  :=\int\tau(z')\mathcal{G}\left(\sqrt{(x-x')^2+(y-y')^2+(z')^2}\right)dz'
+$$</p>
+<p>
+  が得られます。
+  この記事では、これを2Dカーネルとしての diffusion profile として定義します。
+  よって最終的に
+</p>
+<p>$$
+  E_\text{out}(x,y)
+  =\iint E_\text{in}(x',y')R_d(x-x',y-y')dx'dy'
+$$</p>
+<p>
+  となります。
+</p>
+
+<h3>Sum-of-Gaussians</h3>
+<p>
+  一部のリアルタイムレンダリングにおいて、
+  Yukawaカーネルより取り扱いやすいガウシアンカーネルが用いられることがあります。
+  例えば
+</p>
+<p>$$
+  G(\bm{s};\,\nu_i)
+  :=\frac{1}{2\pi\nu_i}\exp\left[-\frac{|\bm{s}|}{2\nu_i}\right]
+$$</p>
+<p>
+  というガウシアンで diffusion profile $R_d$ を近似する手法 (sum of Gaussians)が使われます
+  [<a href="#dEon2007"> d’Eon and Luebke. 2007</a>]。
+  ガウシアンカーネルは、座標軸ごとに積分を分離できるなど、計算を効率化しやすい性質をもちます
+  [<a href="#Jimenez2015">Jimenez et al. 2015</a>]
+  たとえば複数のガウシアンを重ね合わせることで、
+</p>
+<p>$$
+  R_d(\bm{s}')
+  \sim \sum_iw_iG(\bm{s};\,\nu_i)
+$$</p>
+<p>
+  という表現を用いることができます。このとき、
+</p>
+<p>$$
+  E_\text{out}(\bm{s})
+  = \int_{\mathcal{A}}E_\text{in}(\bm{s}')R_d(\bm{s}-\bm{s}')d\bm{s}'
+  \sim \sum_kE_\text{in}(\bm{s}_k)R_d(\bm{s}_k)
+$$</p>
+<p>
+  となります。  
+</p>
+<p>
+  以上のように、Volume Rendering 方程式から出発して、
+  subsurface scattering で使われるガウシアンの畳み込み積分に至ることができました。
+</p>
+
+<h2>まとめ</h2>
+<p>
+  この記事では、Radiative Transfer 方程式から 0 次と 1 次モーメント方程式を導き、
+  拡散近似を通して 拡散方程式 が得られる流れを書きました。
+  そして拡散方程式のグリーン関数を2次元表面に射影したものを、
+  subsurface scattering の diffusion profile $R_d$ として定義し、
+  それがガウシアンを用いた sum-of-Gaussians 表現に繋がることを示しました。
+
+  このような、拡散近似で得た畳み込み積分は実装が簡単で物理的な妥当性もあり、
+  subsurface scattering の第一歩として広く応用されている手法のひとつと言えます。
+</p>
+
+<h2>参考文献</h2>
+<ul>
+  <li id="Ishimaru1978">
+    Ishimaru, A. (1978). Chapter 9 diffusion approximation. In Wave propagation and scattering in random media (Vol. 2, pp. 148-166). New York: Academic press.
+  </li>
+  <li id="Cercignani1988">
+    Cercignani, C. (1988). Linear Transport. In: The Boltzmann Equation and Its Applications. Applied Mathematical Sciences, vol 67. Springer, New York, NY.
+  </li>
+  <li id="Arvo1993">
+    Arvo, J. (1993). Transfer equations in global illumination. Global Illumination, SIGGRAPH ‘93 Course Notes, 2, 6.
+  </li>
+  <li id="Jensen2001">
+    Wann Jensen, H., et al. (2001).
+    A practical model for subsurface light transport. In SIGGRAPH ’01: Proceedings of the 28th annual conference on Computer graphics and interactive techniques, pages 511–518, New York,
+NY, USA, 2001. ACM Press.
+  </li>
+  <li id="Pomraning2005">
+    Pomraning, G. C. (2005). Chapter III Approximate Descriptions of Radiative Transfer. In The Equations of Radiation Hydrodynamics. Dover Publications.
+  </li>
+  <li id="dEon2007">
+    d’Eon, E., and Luebke, D. (2007). Chapter 14. Advanced Techniques for Realistic Real-Time Skin Rendering. GPU Gems, 3.
+  </li>
+  <li id="Jakob2010">
+    Jakob, W., et al. (2010). A radiative transfer framework for rendering materials with anisotropic structure. In ACM SIGGRAPH 2010 papers (pp. 1-13).
+  </li>
+  <li>
+    Farrell, T. J., Patterson, M. S., & Wilson, B. (1992). A diffusion theory model of spatially resolved, steady‐state diffuse reflectance for the noninvasive determination of tissue optical properties in vivo. Medical physics, 19(4), 879-888.
+  </li>
+  <li id="Hoffman2013">
+    Hoffman, N. (2013). Background: physics and math of shading. Physically based shading in theory and practice. In ACM SIGGRAPH 2013 Courses.
+  </li>
+  <li id="Jimenez2015">
+    Jimenez, J., et al. (2015). Separable subsurface scattering. In Computer Graphics Forum (Vol. 34, No. 6, pp. 188-197).
+  </li>
+  <li id="pbrt2016">
+    Pharr, M., et al. (2016). 15.5 Subsurface Scattering Using the Diffusion Equation. In Physically Based Rendering: From Theory to Implementation (3rd ed.). Morgan Kaufmann Publishers Inc., San Francisco, CA, USA.
+  </li>
+</ul>
+<hr>
+<p>
+  2024.12.23. <a href="https://bsky.app/profile/kenha.bsky.social">ishiyama</a>
+</p>
+
+</body>
+</html>
