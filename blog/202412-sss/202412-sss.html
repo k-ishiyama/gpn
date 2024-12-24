@@ -41,7 +41,7 @@
 <h3>Volume Rendering 方程式</h3>
 <p>
   光を単純な点粒子として扱う近似のもとでは、3次元空間上の位置 $\bm{r}$ と方向 $\bm{\omega}$ に対応する放射輝度
-  $L(\bm{x},\bm{\omega})$ は、次式で記述されます
+  $L(\bm{x},\bm{\omega})$ の変化は、次式で記述されます
   [<a href="#Arvo1993">Arvo 1993</a>][<a href="$Cercignani1988">Cercignani 1988</a>]。
 </p>
 <p>$$
@@ -116,7 +116,7 @@ $$</p>
   </li>
   <li>2次モーメント
     <p>$$
-      \bm{E}_2(\bm{r}):=\mathcal{M}_2\left[L(\bm{r},\bm{\omega}\right]
+      \bm{E}_2(\bm{r}):=\mathcal{M}_2\left[L(\bm{r},\bm{\omega})\right]
       = \int_{\mathcal{S}^2}(\bm{\omega}\otimes\bm{\omega})L(\bm{r},\bm{\omega})d\bm{\omega}
     $$</p>    
   </li>
@@ -299,10 +299,7 @@ $$</p>
   = \mu_aE(\bm{r}) - Q(\bm{r})
 $$</p>
 <p>
-  これが拡散方程式です
-  [<a href="#Ishimaru1978">Ishimaru 1978</a>]
-  [<a href="#Jensen2001">Jensen et al. 2001</a>]
-  [<a href="#Jakob2010">Jakob et al. 2010</a>]。
+  これが拡散方程式です。
 </p>
 
 <h3>拡散方程式の解</h3>
@@ -328,7 +325,7 @@ $$</p>
 </p>
 <p>$$
   \mathcal{G}(\bm{r}-\bm{r}')
-  =\frac{1}{4\pi D}\frac{e^{-\mu_\text{eff}|\bm{r}-\bm{r}'|}}{|\bm{r}-\bm{r}'|}
+  =\frac{1}{4\pi}\frac{e^{-\mu_\text{eff}|\bm{r}-\bm{r}'|}}{|\bm{r}-\bm{r}'|}
 $$</p>
 
 
@@ -347,7 +344,7 @@ $$</p>
 $$</p>
 <p>
   ここで用いられる $R_d$ は、3次元のグリーン関数 $\mathcal{G}$ を、深さ方向に対して積分し2次元化したものとみなせます
-  [<a href="#dEon2007"> d’Eon and Luebke. 2007</a>]。
+  [<a href="#dEon2007">d’Eon and Luebke. 2007</a>]。
 </p>
 
 <h3>2D Diffusion Profiles</h3>
@@ -359,18 +356,20 @@ $$</p>
 $$</p>
 <p>
   を考え、$\bm{r}=(x,y,z)$ のうち表面 $z=0$ の値に着目します。
-  光源項 $Q(\bm{r}')$ を表面成分 $(x',y')$ と深さ方向成分 $z'$ に分離して
+  [<a href="#Farrell1992">Farrell et al. 1992</a>]
+  と同様に、
+  媒質内部の光源項 $Q(\bm{r}')$ を表面成分 $E_\text{in}(x',y')$ と深さ方向の減衰成分 $d(z')$ に分離します
 </p>
 <p>$$
   Q(\bm{r}')
-  = E_\text{in}(x',y')\tau(z')
+  = E_\text{in}(x',y')d(z').
 $$</p>
 <p>
-  と書き、$\mathcal{G}$ を深さ方向に対して積分すると、表面上で有効な応答関数
+  そして $\mathcal{G}$ を深さ方向に対して積分すると、表面上で有効な応答関数
 </p>
 <p>$$
   R_d(x',y')
-  :=\int\tau(z')\mathcal{G}\left(\sqrt{(x-x')^2+(y-y')^2+(z')^2}\right)dz'
+  :=\int d(z')\mathcal{G}\left(\sqrt{(x-x')^2+(y-y')^2+(z')^2}\right)dz'
 $$</p>
 <p>
   が得られます。
@@ -393,11 +392,11 @@ $$</p>
 </p>
 <p>$$
   G(\bm{s};\,\nu_i)
-  :=\frac{1}{2\pi\nu_i}\exp\left[-\frac{|\bm{s}|}{2\nu_i}\right]
+  :=\frac{1}{2\pi\nu_i}\exp\left(-\frac{|\bm{s}|}{2\nu_i}\right)
 $$</p>
 <p>
   というガウシアンで diffusion profile $R_d$ を近似する手法 (sum of Gaussians)が使われます
-  [<a href="#dEon2007"> d’Eon and Luebke. 2007</a>]。
+  [<a href="#dEon2007">d’Eon and Luebke. 2007</a>]。
   ガウシアンカーネルは、座標軸ごとに積分を分離できるなど、計算を効率化しやすい性質をもちます
   [<a href="#Jimenez2015">Jimenez et al. 2015</a>]
   たとえば複数のガウシアンを重ね合わせることで、
@@ -442,6 +441,9 @@ $$</p>
   <li id="Cercignani1988">
     Cercignani, C. (1988). Linear Transport. In: The Boltzmann Equation and Its Applications. Applied Mathematical Sciences, vol 67. Springer, New York, NY.
   </li>
+  <li id="Farrell1992">
+    Farrell, T. J., et al. (1992). A diffusion theory model of spatially resolved, steady‐state diffuse reflectance for the noninvasive determination of tissue optical properties in vivo. Medical physics, 19(4), 879-888.
+  </li>
   <li id="Arvo1993">
     Arvo, J. (1993). Transfer equations in global illumination. Global Illumination, SIGGRAPH ‘93 Course Notes, 2, 6.
   </li>
@@ -458,9 +460,6 @@ NY, USA, 2001. ACM Press.
   </li>
   <li id="Jakob2010">
     Jakob, W., et al. (2010). A radiative transfer framework for rendering materials with anisotropic structure. In ACM SIGGRAPH 2010 papers (pp. 1-13).
-  </li>
-  <li>
-    Farrell, T. J., Patterson, M. S., & Wilson, B. (1992). A diffusion theory model of spatially resolved, steady‐state diffuse reflectance for the noninvasive determination of tissue optical properties in vivo. Medical physics, 19(4), 879-888.
   </li>
   <li id="Hoffman2013">
     Hoffman, N. (2013). Background: physics and math of shading. Physically based shading in theory and practice. In ACM SIGGRAPH 2013 Courses.
