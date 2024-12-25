@@ -318,13 +318,13 @@ $$</p>
 </p>
 <p>$$
   E(\bm{r})
-  = \frac{1}{D}\int Q(\bm{r}')\mathcal{G}(\bm{r}-\bm{r}')d\bm{r}'.
+  = \frac{1}{D}\int Q(\bm{r}')\mathcal{G}(|\bm{r}-\bm{r}'|)d\bm{r}'.
 $$</p>
 <p>
   Screened Poisson 方程式の Green 関数は Yukawa カーネルと呼ばれ、以下のように与えられます
 </p>
 <p>$$
-  \mathcal{G}(\bm{r}-\bm{r}')
+  \mathcal{G}(|\bm{r}-\bm{r}'|)
   =\frac{1}{4\pi}\frac{e^{-\mu_\text{eff}|\bm{r}-\bm{r}'|}}{|\bm{r}-\bm{r}'|}
 $$</p>
 
@@ -340,7 +340,7 @@ $$</p>
 </p>
 <p>$$
   E_\text{out}(\bm{s})
-  = \int_{\mathcal{A}}E_\text{in}(\bm{s}')R_d(\bm{s}-\bm{s}')d\bm{s}'.
+  = \int_{\mathcal{A}}E_\text{in}(\bm{s}')R_d(|\bm{s}-\bm{s}'|)d\bm{s}'.
 $$</p>
 <p>
   ここで用いられる $R_d$ は、3次元のグリーン関数 $\mathcal{G}$ を、深さ方向に対して積分し2次元化したものとみなせます
@@ -352,23 +352,23 @@ $$</p>
   拡散近似による照度
 </p>
 <p>$$
-  E(\bm{r})=\int Q(\bm{r}')\mathcal{G}(\bm{r}-\bm{r}')d\bm{r}'
+  E(\bm{r})=\int Q(\bm{r}')\mathcal{G}(|\bm{r}-\bm{r}'|)d\bm{r}'
 $$</p>
 <p>
   を考え、$\bm{r}=(x,y,z)$ のうち表面 $z=0$ の値に着目します。
   [<a href="#Farrell1992">Farrell et al. 1992</a>]
   と同様に、
-  媒質内部の光源項 $Q(\bm{r}')$ を表面成分 $E_\text{in}(x',y')$ と深さ方向の減衰成分 $d(z')$ で構成します
+  媒質内部の光源項 $Q(\bm{r}')$ を表面成分 $E_\text{in}(\bm{s}')$ と深さ方向の減衰成分 $d(z')$ で構成します
 </p>
 <p>$$
   Q(\bm{r}')
-  = E_\text{in}(x',y')d(z').
+  = E_\text{in}(\bm{s}')d(z').
 $$</p>
 <p>
   そして $\mathcal{G}$ を深さ方向に対して積分すると、表面上で有効な応答関数
 </p>
 <p>$$
-  R_d(x',y')
+  R_d(|\bm{s}-\bm{s}'|)
   :=\int d(z')\mathcal{G}\left(\sqrt{(x-x')^2+(y-y')^2+(z')^2}\right)dz'
 $$</p>
 <p>
@@ -377,8 +377,8 @@ $$</p>
   よって最終的に
 </p>
 <p>$$
-  E_\text{out}(x,y)
-  =\iint E_\text{in}(x',y')R_d(x-x',y-y')dx'dy'
+  E_\text{out}(\bm{s})
+  =\int E_\text{in}(\bm{s}')R_d(|\bm{s}-\bm{s}'|)d\bm{s}'
 $$</p>
 <p>
   となります。
@@ -410,8 +410,8 @@ $$</p>
 </p>
 <p>$$
   E_\text{out}(\bm{s})
-  = \int_{\mathcal{A}}E_\text{in}(\bm{s}')R_d(\bm{s}-\bm{s}')d\bm{s}'
-  \sim \sum_kE_\text{in}(\bm{s}_k)R_d(\bm{s}_k)
+  = \int_{\mathcal{A}}E_\text{in}(\bm{s}')R_d(|\bm{s}-\bm{s}'|)d\bm{s}'
+  \sim \sum_kE_\text{in}(\bm{s}_k)R_d(|\bm{s}-\bm{s}_k|)
 $$</p>
 <p>
   となります。  
