@@ -269,7 +269,7 @@ $$</p>
   等方的な光源($\bm{Q}_1=0$)を仮定すれば、
 </p>
 <p>$$
-  \bm{E}_1(\bm{r})=-DE(\bm{r}),
+  \bm{E}_1(\bm{r})=-D\nabla E(\bm{r}),
   \quad
   D:=\frac{1}{3(\sigma_a+\sigma'_s)}
 $$</p>
@@ -285,7 +285,7 @@ $$</p>
   \nabla\cdot\bm{E}_1(\bm{r}) = -\mu_a E(\bm{r}) + Q(\bm{r})
 $$</p>
 <p>
-  に対して、拡散近似で得られた $\bm{E}_1=-DE$ を代入すると
+  に対して、拡散近似で得られた $\bm{E}_1=-D\nabla E$ を代入すると
 </p>
 <p>$$
   \nabla\cdot\left[-D\nabla E(\bm{r})\right]
@@ -423,7 +423,7 @@ $$</p>
 
 <h2>まとめ</h2>
 <p>
-  この記事では、Radiative Transfer 方程式から 0 次と 1 次モーメント方程式を導き、
+  この記事では、Volume Rendering 方程式から 0 次と 1 次モーメント方程式を導き、
   拡散近似を通して 拡散方程式 が得られる流れを書きました。
   そして拡散方程式のグリーン関数を2次元表面に射影したものを、
   subsurface scattering の diffusion profile $R_d$ として定義し、
