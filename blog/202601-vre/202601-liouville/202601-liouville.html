@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="../../../js/katex-loader.js"></script>
+  <title>3 光線と放射輝度</title>
+</head>
+<body>
+<h1>3 光線の集まりと放射輝度</h1>
+<p>
+  前の記事では、単色波の Helmholtz 方程式に幾何光学近似を適用すると、
+  Eikonal 方程式を通して光線が Hamilton-Jacobi 方程式
+</p>
+$$
+  H(\bm{x},\bm{p}) = 0,\quad
+  H(\bm{x},\bm{p}) =\frac{1}{2}\left(|\bm{p}|^2-n^2(\bm{x})\right)
+  \tag{3.1}
+$$
+<p>
+  で記述され、その経路が Hamilton 方程式
+</p>
+$$
+  \frac{d\bm{x}}{d\tau}=\frac{\partial H}{\partial\bm{p}},\qquad
+  \frac{d\bm{p}}{d\tau}=-\frac{\partial H}{\partial\bm{x}}
+  \tag{3.2}
+$$
+<p>
+  に従うことを確認しました。
+  屈折率は正の実数のみを考えていることから、(3.1) より
+</p>
+$$
+  |\bm{p}|=n(\bm{x})
+  \tag{3.3}
+$$
+<p>
+  という関係があります。
+</p>
+<p>
+  この記事では、光線に沿って流れる相空間分布関数を考え、放射輝度の保存則を導きます。
+</p>
+
+<h2>3.1 Liouville の式</h2>
+<h3>3.1.1 相空間分布関数</h3>
+<p>
+  ひとつの光線の状態は位置 $\bm{x}(\tau)$ と運動量 $\bm{p}(\tau)$ で記述できます。
+  まず、位置と運動量の組 $(\bm{x},\bm{p})$ が属する6次元の空間を相空間と呼びます。
+  光線のエネルギーを適当に区切り、その数を数えられるものと仮定して、
+  光線の密度を表す相空間分布関数 $f(\bm{x},\bm{p})$ を考えます。
+</p>
+<p>
+  そして、位置の微小体積 $d\bm{x}$ と運動量の微小体積 $d\bm{p}$ を取ったとき、
+  その 6 次元体積要素に含まれる数を
+</p>
+$$
+  dN := f(\bm{x},\bm{p})\,d\bm{x}\,d\bm{p}
+  \tag{3.4}
+$$
+<p>
+  と書きます。したがって相空間内の任意の領域 $U$ に含まれる光線の総数は
+</p>
+$$
+  N(U) := \int_U f(\bm{x},\bm{p})\,d\bm{x}\,d\bm{p}
+  \tag{3.5}
+$$
+<p>
+  で与えられます。
+</p>
+
+<h3>3.1.2 Liouville の式</h3>
+<p>
+  位置と運動量の組を $\bm{\xi}=(\bm{x},\bm{p})$ と書きます。
+  いま、媒質中を進む光が増えたり減ったりすることを考えていないので、
+  光線の総数はその流れに沿って変わりません
+</p>
+$$
+  \frac{d}{d\tau}N(U(\tau))
+  = \frac{d}{d\tau}\int_{U(\tau)} f(\bm{\xi}(\tau))\,d\bm{\xi}
+  = 0
+  \tag{3.6}
+$$
+<p>
+  が成り立ちます。ここでレイノルズの輸送定理を用いると、
+</p>
+$$
+  \frac{d}{d\tau}\int_{U(\tau)} f\,d\bm{\xi}
+  =
+  \int_{\partial U(\tau)} f\,(\dot{\bm{\xi}}\cdot\bm{n})\,dS
+  \tag{3.7}
+$$
+<p>
+  となります。$\bm{n}$ は領域の境界 $\partial U(\tau)$ の外向き法線です。
+  さらに発散定理により
+</p>
+$$
+  \int_{\partial U(\tau)} f\,(\dot{\bm{\xi}}\cdot\bm{n})\,dS
+  =
+  \int_{U(\tau)} \nabla_{\bm{\xi}}\cdot\bigl(f\,\dot{\bm{\xi}}\bigr)\,d\bm{\xi}
+  \tag{3.8}
+$$
+<p>
+  なので、(3.6)〜(3.8) から
+</p>
+$$
+  \int_{U(\tau)} \nabla_{\bm{\xi}}\cdot\bigl(f\,\dot{\bm{\xi}}\bigr)\,d\bm{\xi}
+  =0
+  \tag{3.9}
+$$
+<p>
+  が得られます。これは任意の領域 $U(\tau)$ について成り立つので、
+  相空間分布関数 $f$ に関する連続の式
+</p>
+$$
+  \nabla_{\bm{\xi}}\cdot\bigl(f\,\dot{\bm{\xi}}\bigr)=0
+  \tag{3.10}
+$$
+<p>
+  が得られます。
+</p>
+<p>
+  さらに Hamilton 方程式 (3.2) より、
+  この流れが非圧縮であること
+</p>
+$$
+\begin{aligned}
+  \nabla_{\bm{\xi}}\cdot\dot{\bm{\xi}}
+  &=
+  \nabla_{\bm{x}}\cdot\dot{\bm{x}}+\nabla_{\bm{p}}\cdot\dot{\bm{p}}\\
+  &=
+  \sum_i\frac{\partial}{\partial x_i}\!\left(\frac{\partial H}{\partial p_i}\right)
+  +\sum_i\frac{\partial}{\partial p_i}\!\left(-\frac{\partial H}{\partial x_i}\right)
+  =
+  \sum_i\frac{\partial^2H}{\partial x_i\partial p_i}
+  -\sum_i\frac{\partial^2H}{\partial p_i\partial x_i}
+  =0
+\end{aligned}
+  \tag{3.11}
+$$
+<p>
+  がわかります。よって (3.10) は
+</p>
+$$
+  \nabla_{\bm{\xi}}\cdot(f\dot{\bm{\xi}})
+  =\dot{\bm{\xi}}\cdot\nabla_{\bm{\xi}}f+f\,(\nabla_{\bm{\xi}}\cdot\dot{\bm{\xi}})
+  =\dot{\bm{\xi}}\cdot\nabla_{\bm{\xi}}f
+  = 0
+  \tag{3.12}
+$$
+<p>
+  となります。連鎖律より
+</p>
+$$
+  \frac{d}{d\tau}f(\bm{\xi}(\tau))
+  =
+  \dot{\bm{\xi}}\cdot\nabla_{\bm{\xi}}f
+  =0
+  \tag{3.13}
+$$
+<p>
+  が得られます。これは Liouville の式と呼ばれています。
+  $\bm{\xi}=(\bm{x},\bm{p})$ を露わに書くと
+</p>
+$$
+  \frac{d}{d\tau}f\left(\bm{x}(\tau),\bm{p}(\tau)\right)
+  = \dot{\bm{x}}\cdot\nabla_{\bm{x}}f(\bm{x},\bm{p})
+  + \dot{\bm{p}}\cdot\nabla_{\bm{p}}f(\bm{x},\bm{p})
+  =0
+  \tag{3.14}
+$$
+<p>
+  となります。
+  この式は、光線に沿って光線の総量が変わらないことを示しています。
+</p>
+
+<h2>3.2 放射輝度</h2>
+<h3>3.2.1 光線方向 $\Omega$</h3>
+<p>
+  相空間分布 $f(\bm{x},\bm{p})$ は $\bm{x}\in\mathbb{R}^3$ と $\bm{p}\in\mathbb{R}^3$
+  の 6 次元の関数です。
+  しかし、光線は Hamilton-Jacobi 方程式 (3.1) を常に満たすので、
+  実際に光線が存在するのは (3.3) で定まる 5 次元の球面上に限られます。
+  従って、自由度として残るのは光線方向
+</p>
+$$
+  \Omega = \frac{\bm{p}}{|\bm{p}|} \in \mathcal{S}^2
+  \tag{3.15}
+$$
+<p>
+  のみです。
+  このとき、運動量体積要素は
+</p>
+$$
+  d\bm{p}=|\bm{p}|^2d|\bm{p}|d\Omega
+  \tag{3.16}
+$$
+<p>
+  です。式 (3.3) の制限は、積分の中では $\delta(|\bm{p}|-n(\bm{x}))$ で表せます。
+</p>
+
+<details class="derivation">
+  <summary>補足: $d\bm{p}=|\bm{p}|^2d|\bm{p}|d\Omega$ の導出(クリックで展開)</summary>
+  <p>
+    $\Omega(\theta,\phi)=(\sin\theta\cos\phi,\ \sin\theta\sin\phi,\ \cos\theta)$
+    として $\bm p=|\bm{p}|\Omega(\theta,\phi)$ と書いたとき、
+    変数変換 $(|\bm{p}|,\theta,\phi)\mapsto (p_x,p_y,p_z)$ のヤコビアンは
+  </p>
+  $$
+  \begin{aligned}
+    \left|\frac{\partial(p_x,p_y,p_z)}{\partial(|\bm{p}|,\theta,\phi)}\right|
+    &=
+    \det
+    \begin{pmatrix}
+      \dfrac{\partial p_x}{\partial|\bm{p}|} & \dfrac{\partial p_x}{\partial\theta} & \dfrac{\partial p_x}{\partial\phi}\\[6pt]
+      \dfrac{\partial p_y}{\partial|\bm{p}|} & \dfrac{\partial p_y}{\partial\theta} & \dfrac{\partial p_y}{\partial\phi}\\[6pt]
+      \dfrac{\partial p_z}{\partial|\bm{p}|} & \dfrac{\partial p_z}{\partial\theta} & \dfrac{\partial p_z}{\partial\phi}
+    \end{pmatrix} \\
+    &=
+    \det
+    \begin{pmatrix}
+      \sin\theta \cos\phi & |\bm{p}| \cos\theta \cos\phi & -|\bm{p}|\sin\theta \sin\phi \\
+      \sin\theta \sin\phi & |\bm{p}| \cos\theta \sin\phi & |\bm{p}|\sin\theta \cos\phi \\
+      \cos\theta          & -|\bm{p}|\sin\theta         & 0
+    \end{pmatrix}
+    =|\bm{p}|^2\sin\theta.
+  \end{aligned}
+  $$
+  <p>
+    したがって体積要素は
+  </p>
+  $$
+    d\bm{p}
+    = \left|\frac{\partial(p_x,p_y,p_z)}{\partial(|\bm{p}|,\theta,\phi)}\right|
+      d|\bm{p}|\,d\theta\,d\phi
+     = |\bm{p}|^2\sin\theta\,d|\bm{p}|\,d\theta\,d\phi= |\bm{p}|^2\,d|\bm{p}|\,d\Omega,
+  $$
+  $$
+    d\Omega:=\sin\theta\,d\theta\,d\phi.
+  $$
+  <p>
+    と得られます
+  </p>
+</details>
+
+<h3>3.2.2 Basic Radiance</h3>
+<p>
+  制約 (3.3) を満たす相空間分布として
+</p>
+$$
+  \mathcal{L}(\bm{x},\Omega) := f(\bm{x},|\bm{p}|\,\Omega)
+  \tag{3.17}
+$$
+<p>
+  を定義し、これを Basic Radiance と呼ぶことにします。
+</p>
+
+<p>
+  また、光線の総量 $N$ を \((\bm{x},\Omega)\) で書くと、
+  制約 $\delta(|\bm{p}|-n(\bm{x}))$ を加えることで
+</p>
+$$
+  N= \int f\left(\bm{x},|\bm{p}|\,\Omega\right)\,\delta(|\bm{p}|-n(\bm{x}))d\bm{x}d\bm{p}
+  = \int\mathcal{L}(\bm{x},\Omega)\,n^2(\bm{x})\,d\bm{x}\,d\Omega
+  \tag{3.18}
+$$
+<p>
+  と表されます。
+  さらに、光線に沿って $\bm{p}=n(\bm{x})\,\Omega$ なので
+</p>
+$$
+  \mathcal{L}(\bm{x}(\tau),\Omega(\tau))
+  = f\!\left(\bm{x}(\tau),n(\bm{x}(\tau))\Omega(\tau)\right)
+  = f(\bm{x}(\tau),\bm{p}(\tau))
+$$
+<p>
+  が成り立ちます。よって Liouville の式 (3.13) より
+</p>
+$$
+  \frac{d}{d\tau}\mathcal{L}(\bm{x}(\tau),\Omega(\tau))=0
+  \tag{3.19}
+$$
+<p>
+  となります。つまり Basic Radiance $\mathcal{L}$ は光線に沿って変わりません。
+</p>
+
+<h3>3.2.3 放射輝度</h3>
+<p>
+  ヤコビアンとして現れた係数 $n^2(\bm{x})$ を密度分布に吸収する形で
+</p>
+$$
+  L(\bm{x},\Omega) := n^2(\bm{x})\,\mathcal{L}(\bm{x},\Omega)
+  \tag{3.20}
+$$
+<p>
+  と定義し、これを放射輝度と呼びます。
+  式 (3.19) を放射輝度 $L$ で書き直すと
+</p>
+$$
+  \frac{d}{d\tau}\left(\frac{L}{n^2}\right)
+  =\frac{d\mathcal{L}}{d\tau}
+  =0
+  \tag{3.21}
+$$
+
+<p>
+  となります。
+</p>
+
+<h4>3.2.4 屈折率一定の場合</h4>
+<p>
+  屈折率が一定であれば $n$ は定数なので、
+  式 (3.21) は単純に
+</p>
+$$
+  \frac{dL}{d\tau}=0
+  \tag{3.22}
+$$
+<p>
+  となり、放射輝度 $L$ が光線に沿って保存されます。
+  このときは光線は直線となり、弧長 $s$ を用いると
+</p>
+$$
+  \frac{d\bm{x}}{ds}=\Omega
+  \tag{3.23}
+$$
+<p>
+  と書けます。連鎖律より
+</p>
+$$
+  \frac{dL}{ds}
+  = \frac{d\bm{x}}{ds}\cdot\nabla_{\bm{x}} L
+  = \Omega\cdot\nabla_{\bm{x}} L
+  \tag{3.24}
+$$
+<p>
+  なので、式 (3.22) は
+</p>
+$$
+  \Omega\cdot\nabla_{\bm{x}} L(\bm{x},\Omega)=0
+  \tag{3.25}
+$$
+<p>
+  と書けます。これは Volume Rendering 方程式に現れる移流項です。
+</p>
+
+<h2>3.3 まとめ</h2>
+<p>
+  この記事では、光線の密度を表す相空間分布関数 $f(\bm{x},\bm{p})$ を定義し、
+  光線に沿って相空間分布関数および Basic Radiance $\mathcal{L}(\bm{x},\Omega)$ が不変であること (3.14) (3.19) を確認しました。
+  その結果、屈折率が一定の場合に輝度不変則 (3.22) が得られました。
+</p>
+
+<h2>参考文献</h2>
+<ul>
+  <li>
+    Lessig, C., &amp; Castro, A. L. (2012). The geometry of radiative transfer. arXiv:1206.3301.
+  </li>
+  <li>
+    山本. (2014). <i>幾何光学の正準理論</i>. 数学書房.
+  </li>
+</ul>
+
+<hr>
+
+<h2>付録A: $d$ 次元の Basic Radiance と放射輝度</h2>
+<p>
+  この記事は 3 次元空間を前提としているために余談となりますが、
+  3.2 節と同じ議論を $d$ 次元空間 $\bm{x},\bm{p}\in\mathbb{R}^d$ について行い、
+  放射輝度と Basic Radiance の対応関係 (3.20) が空間の次元に応じてどう変わるかを調べてみます。
+</p>
+<p>
+  $d$ 次元での光線方向を
+</p>
+$$
+  \Omega:=\frac{\bm{p}}{|\bm{p}|}\in \mathcal{S}^{d-1}
+  \tag{A.1}
+$$
+<p>
+  と書きます。このとき、$d$ 次元球座標の体積要素は
+</p>
+$$
+  d\bm{p}=|\bm{p}|^{d-1}\,d|\bm{p}|\,d\Omega
+  =|\bm{p}|^{d-1}\,d|\bm{p}|\,d\Omega
+  \tag{A.2}
+$$
+<p>
+  となります。
+</p>
+<p>
+  制約 $|\bm{p}|=n(\bm{x})$ のもとで、
+</p>
+$$
+  \mathcal{L}_d(\bm{x},\Omega):=f\!\left(\bm{x},\,n(\bm{x})\Omega\right)
+  \tag{A.3}
+$$
+<p>
+  を $d$ 次元 Basic Radiance と定義します。
+  (A.2) と制約 $\delta(|\bm{p}|-n(\bm{x}))$ を用いると、$N$ は
+</p>
+$$
+  N=\int f(\bm{x},|\bm{p}|\Omega)\,\delta(|\bm{p}|-n(\bm{x}))\,d\bm{x}\,d\bm{p}
+   =\int \mathcal{L}_d(\bm{x},\Omega)\,n(\bm{x})^{d-1}\,d\bm{x}\,d\Omega
+  \tag{A.4}
+$$
+<p>
+  と書けます。
+  従って、3.2 節で $n^2$ として現れた係数は $n^{d-1}$ に置き換わります。
+</p>
+<p>
+  そこで $d$ 次元の放射輝度を以下のように定義すれば、
+  $d$ 次元版の放射輝度と Basic Radiance の対応関係が得られます。
+</p>
+$$
+  L_d(\bm{x},\Omega):=n^{d-1}(\bm{x})\,\mathcal{L}_d(\bm{x},\Omega)
+  \tag{A.5}
+$$
+<p>
+  Liouville の式より $\mathcal{L}_d$ は光線に沿って不変なので、
+</p>
+$$
+  \frac{d}{d\tau}\mathcal{L}_d(\bm{x}(\tau),\Omega(\tau))=0
+$$
+<p>
+  より
+</p>
+$$
+  \frac{d}{d\tau}\left(\frac{L_d}{n^{d-1}}\right)=0
+  \tag{A.6}
+$$
+<p>
+  が得られます。
+</p>
+
+<hr>
+
+<p>
+  2026. <a href="https://bsky.app/profile/kenha.bsky.social">ishiyama</a>
+</p>
+
+</body>
+</html>

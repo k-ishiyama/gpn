@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="../../../js/katex-loader.js"></script>
+  <title>2 電磁波から光線</title>
+</head>
+<body>
+<h1>2 電磁波から光線</h1>
+
+<h2>2.1 はじめに</h2>
+<p>  
+  <a href="../202601-atoms-to-ior/202601-atoms-to-ior.html">前回の記事</a>では、
+  仮定(A8)(短波長近似)のもとで、媒質の空間分布が屈折率 $n$ として与えられたとき、
+  電場 $\bm{E}$ と磁場 $\bm{H}$ の伝搬は波動方程式
+</p>
+$$
+  \left(\nabla^2-\frac{1}{v^2(\bm{x})}\frac{\partial^2}{\partial t^2}\right)\bm{E}(\bm{x},t) = 0,\quad
+  \left(\nabla^2-\frac{1}{v^2(\bm{x})}\frac{\partial^2}{\partial t^2}\right)\bm{H}(\bm{x},t) = 0
+  \tag{2.1}
+$$
+<p>
+  に従うことを確かめました。
+</p>
+<p>
+  このとき、媒質中の電磁波の位相速度 $v$ と屈折率 $n$ の関係は
+</p>
+$$
+  n(\bm{x})=\frac{c}{v(\bm{x})}
+  \tag{2.2}
+$$
+<p>
+  です。
+  また仮定(A7)(損失なし) より屈折率は正の実数とします。
+</p>
+<p>
+  この記事では、電磁波に対して幾何光学近似を取ることで光線の概念を導き、
+  Hamilton 形式による光線の記述を行います。
+</p>
+
+<h2>2.2 電磁波と光線</h2>
+<h3>2.2.1 スカラー場 $\psi$ の波動方程式</h3>
+<p>
+  いま媒質は等方かつ非磁性で、短波長近似を仮定していることから、偏光の各成分が混ざらないとします。
+  このとき電場 $\bm{E}$、磁場 $\bm{H}$ の各成分は式 (2.1) と同じ型の方程式に従います。
+  そこで、スカラー場 \(\psi(\bm{x},t)\) を用いて
+</p>
+$$
+  \left(\nabla^2-\frac{1}{v^2(\bm{x})}\frac{\partial^2}{\partial t^2}\right)\psi(\bm{x},t)=0
+  \tag{2.3}
+$$
+<p>
+  と書きます。
+</p>
+
+<h3>2.2.2 単色平面波</h3>
+<p>
+  波動方程式 (2.3) の単純な解のひとつは、媒質が均一なときに得られる単色の平面波です：
+</p>
+$$
+  \psi(\bm{x},t)=\Re\left[\psi_0\,e^{i(\bm{k}\cdot\bm{x}-\omega t)}\right]
+  \tag{2.4}
+$$
+<p>
+  これを (2.3) に代入すると
+</p>
+$$
+  \omega = v|\bm{k}|
+$$
+<p>
+  が得られます。
+  いま真空中の波数を \(k_0=\omega/c\) と書き、式 (2.2) を使うと、
+  媒質中で \(|\bm{k}|=n k_0\) という関係も得られます。
+</p>
+
+<h3>2.2.3 Helmholtz 方程式</h3>
+<p>
+  いま、時間変化しない媒質を仮定していることから、
+  角周波数 $\omega$ の単色波を考えて時間依存部分 $e^{-i\omega t}$ を分離し、解を
+</p>
+$$
+  \psi(\bm{x},t)=\Re\left\{\phi(\bm{x})e^{-i\omega t}\right\}
+$$
+<p>
+  と書きます。すると $\phi$ に対して Helmholtz 方程式
+</p>
+$$
+  \left(\nabla^2 + k^2_0\,n^2(\bm{x})\right)\phi(\bm{x}) = 0
+  \tag{2.5}
+$$
+<p>
+  が得られます。
+</p>
+
+<h3>2.2.4 Eikonal方程式</h3>
+<p>
+  仮定 (A8)(短波長近似) に基づき、ゆっくり変化する振幅 $A(\bm{x})$
+  と細かく変化する位相 $\Phi(\bm{x})$ を用いて、解を
+</p>
+$$
+  \phi(\bm{x}) = A(\bm{x})e^{i\Phi(\bm{x})}
+  \tag{2.6}
+$$
+<p>
+  と書きます。$\bm{x}_0$ の近傍で
+  $A(\bm{x})\simeq A(\bm{x}_0)$、
+  $\Phi(\bm{x})\simeq\Phi(\bm{x}_0) + \nabla\Phi(\bm{x}_0)\cdot(\bm{x}-\bm{x}_0)$
+  と近似すると
+</p>
+$$
+\begin{align*}
+  \phi(\bm{x})
+  \simeq A(\bm{x}_0)e^{i\Phi(\bm{x}_0)}e^{i\nabla\Phi(\bm{x}_0)\cdot(\bm{x}-\bm{x}_0)}
+  = C e^{i\nabla\Phi(\bm{x}_0)\cdot\bm{x}}
+  \quad (C=\textrm{const.})
+\end{align*}
+$$
+<p>
+  となり、これは $\bm{x}_0$ の近傍で 
+</p>
+  $$
+  \bm{k}(\bm{x})=\nabla\Phi(\bm{x})
+  $$
+<p>
+  という波数をもつ局所平面波とみなせます。
+  上式に分散関係 $|\bm{k}|=k_0 n(\bm{x})$ を使うと
+</p>
+$$
+  |\nabla\Phi(\bm{x})|^2 = k_0^2\,n^2(\bm{x})
+$$
+<p>
+  となり \(\Phi(\bm{x})=k_0 S(\bm{x})\) とおけば
+</p>
+$$
+  |\nabla S(\bm{x})|^2 = n^2(\bm{x})
+  \tag{2.7}
+$$
+<p>
+  が得られます。この式は Eikonal 方程式、$S$ は Eikonal と呼ばれています。
+  なおこの記事では、仮定(A7)(損失なし)より屈折率 $n$ が実数のみとしているので、
+  Eikonal 方程式は
+</p>
+$$
+  |\nabla S(\bm{x})| = n(\bm{x})
+  \tag{2.8}
+$$
+<p>
+  と同じです。
+</p>
+
+<h3>2.2.5 光線</h3>
+<p>
+  式 (2.8) の Eikonal $S$ は局所平面波の位相を表しており、
+  $S$ が一定値の面は位相が等しい波面、すなわち等位相面を表します。
+  その勾配 $\nabla S$ は等位相面の法線方向を与えることから、
+  波面に直交して進む曲線を光線と呼びます。
+</p>
+<p>
+  ここで、光線方向を
+</p>
+$$
+  \Omega(\bm{x}):=\frac{\nabla S(\bm{x})}{|\nabla S(\bm{x})|}
+  \tag{2.9}
+$$
+<p>
+  と書き、光線の経路を弧長 $s$ で表せば、光線は方向 $\Omega$ に関する曲線として 
+</p>
+$$
+  \frac{d\bm{x}}{ds} = \Omega(\bm{x}(s))
+  \tag{2.10}
+$$
+<p>
+  と表せます。
+  式 (2.8) (2.9) (2.10) から光線に沿った位相の増分は
+</p>
+$$
+  \nabla S\cdot d\bm{x} = n\,ds
+$$
+<p>
+  となり、これを積分すると
+</p>
+$$
+  S(\bm{x}(s))-S(\bm{x}(0))=\int^s_0 n\left(\bm{x}(s')\right)ds'
+$$
+<p>
+  であることから、$S$ は弧長 $s$ に屈折率 $n$ を掛けた量である、光路長になっていることがわかります。
+</p>
+
+<h3>2.2.6 Hamilton-Jacobi 方程式</h3>
+<p>
+  後に光線と媒質の衝突を考える準備として、Eikonal 方程式を Hamilton 形式で書き直します。
+  運動量を
+</p>
+$$
+  \bm{p}(\bm{x}) := \nabla S(\bm{x})
+$$
+<p>
+  と定義すると Eikonal 方程式 (2.7) は
+</p>
+$$
+  H(\bm{x},\bm{p})=0
+  \tag{2.11}
+$$
+$$
+  H(\bm{x},\bm{p}):=\frac{1}{2}\left(|\bm{p}|^2-n^2(\bm{x})\right)
+  \tag{2.12}
+$$
+<p>
+  と書けます。
+  式 (2.11) は、(2.12) を Hamiltonian とする Hamilton-Jacobi 方程式です。
+  この方程式は特性曲線法で解けることが知られています。
+  すなわち、$\tau$ をパラメータとする特性曲線 $(\bm{x}(\tau),\bm{p}(\tau))$ は
+  以下の Hamilton 方程式に従います
+</p>
+$$
+  \frac{d\bm{x}}{d\tau} = \frac{\partial H}{\partial\bm{p}},\quad
+  \frac{d\bm{p}}{d\tau} =-\frac{\partial H}{\partial\bm{x}}
+  \tag{2.13}
+$$
+<h4>光線の Hamilton 方程式</h4>
+<p>
+  Hamilton 方程式で光線の経路を求める具体例を挙げておきます。
+  光線の Hamiltonian (2.12) に対して、Hamilton 方程式は以下のように得られます
+</p>
+$$
+  \frac{d\bm{x}}{d\tau} = \frac{\partial H}{\partial\bm{p}}=\bm{p},\quad
+  \frac{d\bm{p}}{d\tau} =-\frac{\partial H}{\partial\bm{x}}
+  = \frac{1}{2}\nabla n^2(\bm{x})
+$$
+
+<p>
+  媒介変数 $\tau$ の代わりに弧長 $s$ を使い、制約 $|\bm{p}|=n(\bm{x})$ の元で Hamilton 方程式を書くと、
+</p>
+$$
+  \frac{d\bm{p}}{ds}=\nabla n(\bm{x}),\quad
+  \frac{d\bm{x}}{ds}=\frac{\bm{p}}{n(\bm{x})}
+$$
+<p>
+  が得られます。
+  これは、[Pediredla et al. 2020] で光線の経路を求めるのに用いられる Hamilton 方程式です。
+</p>
+
+<h2>2.3 まとめ</h2>
+<p>
+  この記事では電磁波の波動方程式 (2.1) から出発し、単色波に対して Helmholtz 方程式 (2.5) を導き、
+  短波長近似により Eikonal 方程式 (2.7) を得て光線の概念を導きました。
+  そして、Eikonal 方程式と等価な Hamilton-Jacobi 方程式 (2.11) から、
+  ひとつの光線の状態は位置 $\bm{x}$ と運動量 $\bm{p}$、そして Hamilton 方程式 (2.13)で記述されることを確かめました。
+</p>
+
+<hr>
+
+<p>
+  続き: <a href="../202601-liouville/202601-liouville.html">光線と放射輝度</a>
+</p>
+
+<hr>
+
+<h2>参考文献</h2>
+<ul>
+  <li>
+    Lessig, C., &amp; Castro, A. L. (2012). The geometry of radiative transfer. arXiv:1206.3301.
+  </li>
+  <li>
+    山本. (2014). <i>幾何光学の正準理論</i>. 数学書房.
+  </li>
+  <li>
+    Pediredla, A., Chalmiani, Y. K., Scopelliti, M. G., Chamanzar, M., Narasimhan, S., &amp; Gkioulekas, I. (2020). Path tracing estimators for refractive radiative transfer. <i>ACM Transactions on Graphics</i>, <i>39</i>(6), 1–15.
+  </li>
+</ul>
+
+<hr>
+
+<p>
+  2026. <a href="https://bsky.app/profile/kenha.bsky.social">ishiyama</a>
+</p>
+
+</body>
+</html>

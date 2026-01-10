@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script defer src="../../js/katex-loader.js"></script>
+  <script defer src="../../js/mermaid-loader.js"></script>
+  <title>Volume Rendering 方程式の背景を調べる</title>
+</head>
+<body>
+<h1>Volume Rendering 方程式の背景を調べる</h1>
+
+<p>
+  このページは <a href="https://qiita.com/advent-calendar/2025/raytracing">レイトレ Advent Calendar 2025</a> の記事として制作しました。
+</p>
+
+<h2>1 はじめに</h2>
+<p>
+  Volume Rendering 方程式に基づいてパストレーシングをすると、
+  写実的な絵を作ることができます[Fong et al. 2017]。
+  Volume Rendering 方程式は Radiative Transfer 方程式とも呼ばれ、
+  微分形で次のように書かれます：
+</p>
+<h4>Volume Rendering 方程式 (微分形)</h4>
+<p>
+  $$
+    (\Omega\cdot\nabla)L(\bm{x},\Omega)
+    = S(\bm{x},\Omega)
+    + \sigma_s(\bm{x})\int_{\mathcal{S}^2}f_p(\Omega,\Omega')
+      L(\bm{x},\Omega')d\Omega'
+    - \sigma_t(\bm{x})L(\bm{x},\Omega)
+  $$
+</p>
+<ul>
+  <li>$L$：放射輝度 [$\mathrm{W\,m^{-2}\,sr^{-1}}$]</li>
+  <li>$S$：光源項 [$\mathrm{W\,m^{-3}\,sr^{-1}}$]</li>
+  <li>$f_p$：位相関数 [$\mathrm{sr^{-1}}$] (1に規格化された確率密度)</li>
+  <li>$\sigma_a, \sigma_s, \sigma_t(=\sigma_a+\sigma_s)$：吸収係数、散乱係数、消散係数 [$\mathrm{m^{-1}}$]</li>
+</ul>
+<p>
+  写実的な絵を作ることができるのは、放射輝度 $L$ を運ぶ光線が、散乱係数 $\sigma_s$ に応じた割合で媒質に衝突し、
+  位相関数 $f_p$ で与えられた方向に散乱するという数理モデルが、現実をよく再現できることを示しています。
+</p>
+<p>
+  媒質による光の吸収や放射がある場合も、
+  $S=\sigma_aL_e$ と置くことで、光の増減のバランスを取ることができ使い勝手が良いです。
+</p>
+<p>
+  ただし、発光のメカニズムや散乱係数、吸収係数、そして位相関数 $f_p$ が事前に分かる場合はいいのですが、
+  そうでないときは自力で物理現象をモデル化する必要があります。
+</p>
+<p>
+  現代の物理では、幸いにして光の吸収や放射の起源は原子・分子との光子のやり取りであり、散乱もまた同様であることがわかっています。
+  このような物理的背景がわかれば、Volume Rendering 方程式を使った表現の幅も広がることが期待できます。
+</p>
+<p>
+  そこで、この記事では原子・分子と光子のやりとりから始め、
+  光子から電磁波、電磁波から光線と粗視化の階層を順に辿ることで、
+  Volume Rendering 方程式の背景にある物理を調べます。
+</p>
+
+<p>
+  もくじ
+</p>
+<ol>
+  <li><a href="202601-atoms-to-ior/202601-atoms-to-ior.html">原子・分子と屈折率</a></li>
+  <li><a href="202601-wave-to-ray/202601-wave-to-ray.html">電磁波と光線</a></li>
+  <li><a href="202601-liouville/202601-liouville.html">光線と放射輝度</a></li>
+  <li>光線と媒質の衝突(予定)</li>
+  <li>Volume Rendering 方程式(予定)</li>
+</ol>
+
+<h2>参考文献</h2>
+<ul>
+  <li>
+    Fong, J., Wrenninge, M., Kulla, C., &amp; Habel, R. (2017). <i>Production volume rendering</i>. SIGGRAPH 2017 course notes.
+  </li>
+</ul>
+
+<hr>
+<p>
+  2026. <a href="https://bsky.app/profile/kenha.bsky.social">ishiyama</a>
+</p>
+
+</body>
+</html>
